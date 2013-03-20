@@ -1,4 +1,7 @@
 What would you like to do?
 --------------------------
 (1) Generate a sentence
+(2) Add a word database file (.wdf)
+(3) Analyze a text file
+(4) Display Associations for a word
 (q) Quit

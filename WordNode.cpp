@@ -1,5 +1,6 @@
 #include "WordNode.h"
 
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
 
@@ -33,4 +34,17 @@ unsigned int WordNode::getRandomAssociatedWordID() const
 {
     int r = rand() % _mNextWordIDs.size();
     return _mNextWordIDs[r];
+}
+
+unsigned int WordNode::getAmountOfAssociations() const
+{
+  return _mNextWordIDs.size();
+}
+
+unsigned int WordNode::getAssociationAtIndex(unsigned int index) const
+{
+  if (index >=  _mNextWordIDs.size()) {
+    std::cout << "Index out of bounds, please try again." << std::endl;
+  }
+  return _mNextWordIDs[index];
 }

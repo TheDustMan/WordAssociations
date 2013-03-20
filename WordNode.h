@@ -13,6 +13,8 @@ public:
     std::string getWord() const;
     bool hasAssociatedWords() const;
     unsigned int getRandomAssociatedWordID() const;
+    unsigned int getAmountOfAssociations() const;
+    unsigned int getAssociationAtIndex(unsigned int index) const;
 private:
     unsigned int _mWordID;
     std::string _mWord;
