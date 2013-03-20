@@ -2,7 +2,7 @@ CXX=g++
 CXXFLAGS=-g
 
 FILES = words.cpp WordNode.cpp
-OBJECTS = main.o WordNode.o
+OBJECTS = words.o WordNode.o
 EXE = words.exe
 
 all: compile-all link-all
