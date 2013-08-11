@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 class WordNode
 {
@@ -12,13 +13,18 @@ public:
     void addWordAssociation(unsigned int assocID);
     std::string getWord() const;
     bool hasAssociatedWords() const;
-    unsigned int getRandomAssociatedWordID() const;
+    unsigned int getRandomAssociatedWordID();
     unsigned int getAmountOfAssociations() const;
-    unsigned int getAssociationAtIndex(unsigned int index) const;
+    unsigned int getAssociationAtIndex(unsigned int index);
+    unsigned int getNumTimesAssociated(unsigned int assocWordID);
 private:
     unsigned int _mWordID;
-    std::string _mWord;
-    std::vector<unsigned int> _mNextWordIDs;
+    std::string _mWord;    
+    // Maps association ID with number of associations
+    typedef std::map<unsigned int, unsigned int> AssociationMap;
+    AssociationMap _mAssociationMap;
+    // Keep a vector of the associated words as well for easy indexing
+    std::vector<unsigned int> _mAssociatedWordIDs;
 };
 
 #endif /* _WORDNODE_ */

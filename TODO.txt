@@ -1,1 +1,2 @@
-[] Eliminate duplicates from association lists
+[x] Eliminate duplicates from association lists, add hit counter for repeated associations
+[] Be able to print sentences based on most popular associations

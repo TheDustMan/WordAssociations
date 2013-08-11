@@ -1,0 +1,144 @@
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <fstream>
+#include <vector>
+
+const int POS_FILES = 12;
+
+const char *identifiers[13] =
+  {
+    "",
+    "<tt>n.</tt>",
+    "<tt>a.</tt>",
+    "<tt>adv.</tt>",
+    "<tt>pron.</tt>",
+    "<tt>interj.</tt>",
+    "<tt>conj.</tt>",
+    "<tt>prep.</tt>",
+    "<tt>v.</tt>",
+    "<tt>p.p.</tt>",
+    "<tt>v.t.</tt>",
+    "<tt>v.i.</tt>",
+    "<h1>"
+  };
+
+const char *pos_files[POS_FILES] =
+  {
+    "none.txt",
+    "nouns.txt",
+    "adjectives.txt",
+    "adverbs.txt",
+    "pronouns.txt",
+    "interjections.txt",
+    "conjunctions.txt",
+    "prepositions.txt",
+    "verbs.txt",
+    "verbs_past_participle.txt",
+    "verbs_transitive.txt",
+    "verbs_intransitive.txt",
+  };
+
+std::fstream file_streams[POS_FILES];
+
+enum IDENTIFIERS
+  {
+    NONE,
+    NOUN,
+    ADJECTIVE,
+    ADVERB,
+    PRONOUN,
+    INTERJECTION,
+    CONJUNCTION,
+    PREPOSITION,
+    VERB,
+    VERB_PAST_PARTICIPLE,
+    VERB_TRANSITIVE,
+    VERB_INTRANSITIVE,
+    WORD_HEADER
+  };
+
+enum CURRENT_ACTION 
+  {
+    NEW_WORD,
+    PARSING_WORD
+  };
+
+int writeWordToFile(int partOfSpeech, std::vector<std::string>& wordInfo)
+{
+  if (wordInfo.empty()) {
+    std::cout << "Trying to write no word information to file?" << std::endl;
+    return 1;
+  }
+  //if (partOfSpeech == NONE) {
+  //std::cout << "Trying to write NONE partOfSpeech to file?" << std::endl;
+  // return 1;
+  //}
+  for (unsigned int i = 0; i < wordInfo.size(); ++i) {
+    file_streams[partOfSpeech] << wordInfo[i] << std::endl;
+  }
+  return 0;
+}
+
+int findPartOfSpeech(std::string &line, int &pos)
+{
+  static int counter = 0;
+  for (int i = 1; i <= 11; ++i) {
+    if (line.find(identifiers[i]) != std::string::npos) {
+      pos = i;
+      return 0;
+    }
+  }
+  if (counter % 100 == 0) {
+    std::cout << "Couldn't find part of speech wtf: " << counter++ << std::endl;
+  }
+  pos = 0;
+  return 1;
+}
+
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        std::cout << "Please feed me a file." << std::endl;
+    }
+    for (unsigned int i = 0; i < POS_FILES; ++i) {
+      std::cout << "Opening: " << pos_files[i] << std::endl;
+      file_streams[i].open(pos_files[i], std::fstream::out | std::fstream::app);
+    }
+
+    std::ifstream infile(argv[1]);
+    std::string line;
+
+    std::vector<std::string> wordInfo;
+    bool foundNewWord = false;
+    bool parsingWord = false;
+    int speechPart = NONE;
+    while (std::getline(infile, line))
+    {
+        std::istringstream iss(line);
+	if (line.find(identifiers[WORD_HEADER]) != std::string::npos) {
+	  foundNewWord = true;
+	  parsingWord = false;
+	}
+	if (foundNewWord) {
+	  writeWordToFile(speechPart, wordInfo);
+	  wordInfo.clear();
+	  foundNewWord = false;
+	  parsingWord = true; 
+	}
+	if (parsingWord) {
+	  if (line.find("<tt>") != std::string::npos) {
+	    findPartOfSpeech(line, speechPart);
+	  }
+	  wordInfo.push_back(line);
+	}
+    }
+    if (!wordInfo.empty()) {
+      writeWordToFile(speechPart, wordInfo);
+    }
+
+    for (unsigned int i = 0; i < POS_FILES; ++i) {
+      file_streams[i].close();
+    }
+    inFile.close();
+    return 0;
+}

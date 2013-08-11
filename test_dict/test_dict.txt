@@ -1,0 +1,24 @@
+<h1>Dust</h1>
+<tt>p.p.</tt>
+<h1>Man</h1>
+<tt>v.</tt>
+<h1>Is</h1>
+<tt>v.t.</tt>
+<h1>Cool</h1>
+<tt>v.i.</tt>
+<h1>Space</h1>
+<tt>v. i.</tt>
+<h1>ship</h1>
+<tt>v. t.</tt>
+<h1>tree</h1>
+<tt>n. pl.</tt>
+<h1>leaf</h1>
+<tt>adv. & a.</tt>
+<h1>bug</h1>
+<tt>pret.</tt>
+<h1>log</h1>
+<tt>adv. & prep.</tt>
+<h1>fish</h1>
+<tt>prep. & adv.</tt>
+<h1>scoopy</h1>
+<tt>prep. or adv.</tt>

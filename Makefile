@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-g
+CXXFLAGS=-g -Wall
 
 FILES = words.cpp WordNode.cpp
 OBJECTS = words.o WordNode.o
@@ -14,4 +14,4 @@ compile-all:
 	$(CXX) $(CXXFLAGS) -c $(FILES)
 
 clean:
-	rm -rf $(EXE) *.o
+	rm -rf $(EXE) *.o *.obj *.pdb *.ilk *.exe*

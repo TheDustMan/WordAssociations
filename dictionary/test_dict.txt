@@ -1,0 +1,8 @@
+<h1>Dust</h1>
+<tt>p.p.</tt><tt>n.</tt><tt>a.</tt>
+<h1>Man</h1>
+<tt>v.</tt>
+<h1>Is</h1>
+<tt>v.t.</tt>
+<h1>Cool</h1>
+<tt>v.i.</tt>
