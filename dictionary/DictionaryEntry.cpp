@@ -10,6 +10,12 @@ void DictionaryEntry::addDefinition(std::string definition)
     _mDefinitions.push_back(definition);
 }
 
+void DictionaryEntry::addDefinitions(std::vector<std::string> definitions)
+{
+    _mDefinitions.reserve(_mDefinitions.size() + definitions.size());
+    _mDefinitions.insert(_mDefinitions.end(), definitions.begin(), definitions.end());
+}
+
 void DictionaryEntry::addExample(std::string example)
 {
     _mExamples.push_back(example);
@@ -73,19 +79,19 @@ std::string DictionaryEntry::toString() const
         entryString << "<N/A>";
     }
     entryString << std::endl << std::endl;
-    entryString << "Definitions: ";
+    entryString << "Definitions:" << std::endl;
     if (_mDefinitions.size()) {
         for (unsigned int i = 0U; i < _mDefinitions.size(); ++i) {
-            entryString << _mDefinitions[i] <<  " ";
+            entryString << (i+1) << ". " << _mDefinitions[i] << std::endl ;
         }
     } else {
         entryString << "<N/A>";
     }
     entryString << std::endl;
-    entryString << "Examples: ";
+    entryString << "Examples:" << std::endl;
     if (_mExamples.size()) {
         for (unsigned int i = 0U; i < _mExamples.size(); ++i) {
-            entryString << _mExamples[i] <<  " ";
+            entryString << (i+1) << ". " << _mExamples[i] <<  " ";
         }
     } else {
         entryString << "<N/A>";

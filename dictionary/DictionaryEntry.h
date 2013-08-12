@@ -13,6 +13,7 @@ class DictionaryEntry
 public:
     DictionaryEntry(std::string word);
     void addDefinition(std::string definition);
+    void addDefinitions(std::vector<std::string> definitions);
     void addExample(std::string example);
     void addPartOfSpeech(PartsOfSpeechEnums_t partOfSpeech);
     void addSyllable(std::string syllable);

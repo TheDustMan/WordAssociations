@@ -6,6 +6,14 @@ Dictionary::Dictionary()
 
 }
 
+Dictionary::~Dictionary()
+{
+    DictionaryMap::iterator dictIter;
+    for (dictIter = _mDictionary.begin(); dictIter != _mDictionary.end(); dictIter++) {
+        delete dictIter->second;
+    }
+}
+
 int Dictionary::insertDictionaryEntry(DictionaryEntry *entry)
 {
     if (!entry) {
@@ -22,7 +30,14 @@ int Dictionary::insertDictionaryEntry(DictionaryEntry *entry)
     return 0;
 }
 
-int Dictionary::lookupWord(std::string word)
+std::string Dictionary::lookupWord(std::string word)
 {
-    
+    std::string wordInfoStr = "";
+    DictionaryMap::iterator dictIter = _mDictionary.find(word);
+    if (dictIter == _mDictionary.end()) {
+        wordInfoStr = "The word " + word + " doesn't exist in the dictionary.";
+    } else {
+        wordInfoStr = dictIter->second->toString();
+    }
+    return wordInfoStr;
 }

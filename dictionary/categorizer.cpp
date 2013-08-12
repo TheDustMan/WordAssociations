@@ -12,11 +12,14 @@
 #include "SpeechDefinitions.h"
 
 const unsigned int NUM_TOKENS = 17;
-const char* WORD_HEADER = "<h1>";
+const char* WORD_START_TAG = "<h1>";
+const char* WORD_END_TAG = "</h1>";
 const char* DEFINITION_START_TAG = "<def>";
 const char* DEFINITION_END_TAG = "</def>";
 const char* SYLLABLE_START_TAG = "<hw>";
 const char* SYLLABLE_END_TAG = "</hw>";
+
+static Dictionary _gDictionary;
 
 enum MENU_CHOICES
     {
@@ -126,6 +129,60 @@ void findPartOfSpeech(std::string &line, bool *partsOfSpeech)
 
 }
 
+std::string getBetween(std::string str, std::string start, std::string end)
+{
+    
+    size_t startPos = str.find(start);
+    size_t endPos = str.find(end);
+    size_t startMarkerSize = start.size();
+    if (startPos == std::string::npos) {
+        //std::cout << "Could not find start: " << start << std::endl;
+        return "";
+    }
+    if (endPos == std::string::npos) {
+        //std::cout << "Could not find end: " << end << std::endl;
+        return "";
+    }
+    return str.substr(startPos + startMarkerSize, endPos - (startPos + startMarkerSize));
+}
+
+/* Find each occurence of the tags and store the contents into a cell of the vector */
+std::vector<std::string> getAllTagContents(std::string str, std::string tagStart, std::string tagEnd)
+{
+    std::vector<std::string> contents;
+    
+    std::string tempStr = str;
+    size_t tagEndSize = tagEnd.size();
+    
+    std::string content = "";
+    do {
+        content = getBetween(tempStr, tagStart, tagEnd);
+        if (content.compare("") == 0) { break; }
+        contents.push_back(content);
+        tempStr = tempStr.substr(tempStr.find(tagEnd) + tagEndSize);
+    } while (content.compare("") != 0);
+
+    return contents;
+}
+
+void addDictionaryEntry(std::vector<std::string> wordInfo)
+{
+    if (wordInfo.empty()) {
+        std::cout << "Trying to add an empty word into the dictionary." << std::endl;
+        return;
+    }
+    std::string entryString = "";
+    for (unsigned int i = 0; i < wordInfo.size(); ++i) {
+        entryString += wordInfo[i];
+    }
+    std::string word = getBetween(entryString, WORD_START_TAG, WORD_END_TAG);
+    std::vector<std::string> definitions = getAllTagContents(entryString, DEFINITION_START_TAG, DEFINITION_END_TAG);
+    //std::string partsOfSpeech = getAllTagContents(entryString, DEFINITION_START_TAG, DEFINITION_END_TAG);
+    DictionaryEntry *entry = new DictionaryEntry(word);
+    entry->addDefinitions(definitions);
+    _gDictionary.insertDictionaryEntry(entry);
+}
+
 void analyzeDictionary(std::string dictionaryFile)
 {
     openPartOfSpeechFiles();
@@ -140,11 +197,14 @@ void analyzeDictionary(std::string dictionaryFile)
     while (std::getline(infile, line))
     {
         std::istringstream iss(line);
-        if (line.find(WORD_HEADER) != std::string::npos) {
+        if (line.find(WORD_START_TAG) != std::string::npos) {
             foundNewWord = true;
             parsingWord = false;
         }
         if (foundNewWord) {
+            /* Process the previously gathered word before
+               moving onto the next one */
+            addDictionaryEntry(wordInfo);
             writeWordToFile(speechParts, wordInfo);
             wordInfo.clear();
             memset(speechParts, false, sizeof(speechParts));
@@ -197,7 +257,10 @@ void beADictionaryApp()
         case LOOKUP:
             {
                 std::string lookupWord = printMenu(menuLoader, "lookup");
-                std::cout << "You want to lookup word: " << lookupWord << ", NYI" << std::endl << std::endl;
+                std::string wordInfo = _gDictionary.lookupWord(lookupWord);
+                std::cout << "Dictionary Entry for: " << lookupWord << std::endl;
+                std::cout << "--------------------------------------: " <<std::endl;
+                std::cout << wordInfo << std::endl;
                 break;
             }
         case QUIT:

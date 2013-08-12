@@ -1,2 +1,3 @@
 [x] Eliminate duplicates from association lists, add hit counter for repeated associations
 [] Be able to print sentences based on most popular associations
+[] categorizer: process multiple entries of the same word int he dictionary (append to existing)

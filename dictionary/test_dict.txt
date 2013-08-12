@@ -1,5 +1,6 @@
 <h1>Dust</h1>
 <tt>p.p.</tt><tt>n.</tt><tt>a.</tt>
+<def>Dust is a cool</def><def>Dust is a calm</def>
 <h1>Man</h1>
 <tt>v.</tt>
 <h1>Is</h1>

@@ -11,8 +11,9 @@ class Dictionary
     typedef std::map<std::string, DictionaryEntry*> DictionaryMap;
  public:
     Dictionary();
+    ~Dictionary();
     int insertDictionaryEntry(DictionaryEntry *entry);
-    int lookupWord(std::string word);
+    std::string lookupWord(std::string word);
  private:
     DictionaryMap _mDictionary;
 };
