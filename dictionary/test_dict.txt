@@ -1,9 +1,21 @@
 <h1>Dust</h1>
+<hw>Du*st</hw>
 <tt>p.p.</tt><tt>n.</tt><tt>a.</tt>
 <def>Dust is a cool</def><def>Dust is a calm</def>
 <h1>Man</h1>
+<hw>M*a"n</hw>
 <tt>v.</tt>
 <h1>Is</h1>
+<hw>"Is</hw>
 <tt>v.t.</tt>
+<h1>Tis</h1>
+<hw>Tis*</hw>
+<tt>v.t.</tt>
+<h1>Dis</h1>
+<hw>Dis*"</hw>
 <h1>Cool</h1>
+<hw>C"o*ol</hw>
+<tt>v.i.</tt>
+<h1>Cooler</h1>
+<hw>*Cooler</hw>
 <tt>v.i.</tt>

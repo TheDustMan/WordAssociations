@@ -23,7 +23,7 @@ int Dictionary::insertDictionaryEntry(DictionaryEntry *entry)
     std::string word = entry->getWord();
     DictionaryMap::iterator dictIter = _mDictionary.find(word);
     if (dictIter != _mDictionary.end()) {
-        std::cout << "The word: " << word << " is already in the dictionary." << std::endl;
+        //std::cout << "The word: " << word << " is already in the dictionary." << std::endl;
         return 1;        
     }
     _mDictionary.insert(std::pair<std::string, DictionaryEntry*>(word, entry));
@@ -33,11 +33,26 @@ int Dictionary::insertDictionaryEntry(DictionaryEntry *entry)
 std::string Dictionary::lookupWord(std::string word)
 {
     std::string wordInfoStr = "";
-    DictionaryMap::iterator dictIter = _mDictionary.find(word);
-    if (dictIter == _mDictionary.end()) {
+    DictionaryEntry* entryPtr = this->getDictionaryEntry(word);
+    if (!entryPtr) {
         wordInfoStr = "The word " + word + " doesn't exist in the dictionary.";
     } else {
-        wordInfoStr = dictIter->second->toString();
+        wordInfoStr = entryPtr->toString();
     }
     return wordInfoStr;
+}
+
+bool Dictionary::wordExists(std::string word)
+{
+    return (this->getDictionaryEntry(word) != 0);
+}
+
+DictionaryEntry* Dictionary::getDictionaryEntry(std::string word)
+{
+    DictionaryEntry* entryPtr = 0;
+    DictionaryMap::iterator dictIter = _mDictionary.find(word);
+    if (dictIter != _mDictionary.end()) {
+        entryPtr = dictIter->second;
+    }    
+    return entryPtr;
 }

@@ -4,6 +4,7 @@
 #include "DictionaryEntry.h"
 #include <map>
 #include <string>
+#include <vector>
 
 class Dictionary
 {
@@ -14,6 +15,9 @@ class Dictionary
     ~Dictionary();
     int insertDictionaryEntry(DictionaryEntry *entry);
     std::string lookupWord(std::string word);
+    bool wordExists(std::string word);
+    //private:
+    DictionaryEntry* getDictionaryEntry(std::string word);
  private:
     DictionaryMap _mDictionary;
 };

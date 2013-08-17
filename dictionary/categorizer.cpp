@@ -1,5 +1,8 @@
+#include <algorithm>
 #include <map>
 #include <iostream>
+#include <istream>
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <fstream>
@@ -25,6 +28,7 @@ enum MENU_CHOICES
     {
         INVALID,
         LOOKUP,
+        SENTENCE_ANALYZE,
         QUIT
     };
 
@@ -97,7 +101,7 @@ int writeWordToFile(const bool *const partsOfSpeech, std::vector<std::string>& w
     //}
     /* Write the word information to the appropriate file for each part of speech that
        the word belongs to */
-    for (unsigned int posIter = 0; posIter < NUM_PARTS_OF_SPEECH; posIter++) {
+    for (unsigned int posIter = 0; posIter < NUM_PARTS_OF_SPEECH; ++posIter) {
         if (partsOfSpeech[posIter]) {
             for (unsigned int i = 0; i < wordInfo.size(); ++i) {
                 file_handles[posIter] << wordInfo[i] << std::endl;
@@ -107,19 +111,23 @@ int writeWordToFile(const bool *const partsOfSpeech, std::vector<std::string>& w
     return 0;
 }
 
-void findPartOfSpeech(std::string &line, bool *partsOfSpeech)
+void findPartOfSpeech(std::string &line, bool *partsOfSpeech, std::vector<PartsOfSpeechEnums_t>& partsOfSpeechVector)
 {
     //static int counter = 0;
     for (PART_OF_SPEECH_TOKEN_MAP::iterator it = part_of_speech_tokens.begin();
          it != part_of_speech_tokens.end();
          it++) {
         if (it->first == NONE) { continue; }
-        for (unsigned int tokenIter = 0; tokenIter < it->second.size(); tokenIter++) {
+        for (unsigned int tokenIter = 0; tokenIter < it->second.size(); ++tokenIter) {
             if (line.find(it->second[tokenIter]) != std::string::npos) {
                 partsOfSpeech[it->first] = true;
                 partsOfSpeech[NONE] = false;
+                partsOfSpeechVector.push_back(it->first);
             }
         }
+    }
+    if (partsOfSpeechVector.empty()) {
+        partsOfSpeechVector.push_back(NONE);
     }
     /*
     if (counter % 100 == 0) {
@@ -165,7 +173,33 @@ std::vector<std::string> getAllTagContents(std::string str, std::string tagStart
     return contents;
 }
 
-void addDictionaryEntry(std::vector<std::string> wordInfo)
+void parseSyllables(std::string syllablesWhole, std::vector<std::string> &syllables, unsigned int &emphasisPos)
+{
+    std::string temp = syllablesWhole;
+    unsigned int mostRecentAlphaPos = 0;
+    std::string::iterator syllableIter;
+    for (syllableIter = syllablesWhole.begin(); syllableIter != syllablesWhole.end(); ++syllableIter) {
+        if ((*syllableIter) == '*' || (*syllableIter) == '"') {
+            if (mostRecentAlphaPos == 0) { 
+                temp = temp.substr(1);
+                continue; 
+            }
+            syllables.push_back(temp.substr(0, mostRecentAlphaPos));
+            temp = temp.substr(++mostRecentAlphaPos);
+            mostRecentAlphaPos = 0;
+            if ((*syllableIter) == '"') {
+                emphasisPos = syllables.size() - 1;
+            }
+        } else {
+            ++mostRecentAlphaPos;
+        }
+    }
+    if (!temp.empty()) {
+        syllables.push_back(temp);
+    }
+}
+
+void addDictionaryEntry(std::vector<std::string> wordInfo, const std::vector<PartsOfSpeechEnums_t>& speechParts)
 {
     if (wordInfo.empty()) {
         std::cout << "Trying to add an empty word into the dictionary." << std::endl;
@@ -175,11 +209,24 @@ void addDictionaryEntry(std::vector<std::string> wordInfo)
     for (unsigned int i = 0; i < wordInfo.size(); ++i) {
         entryString += wordInfo[i];
     }
-    std::string word = getBetween(entryString, WORD_START_TAG, WORD_END_TAG);
+    std::string originalWordForm = getBetween(entryString, WORD_START_TAG, WORD_END_TAG);
+    std::string lowercaseWord = originalWordForm;
+    std::transform(originalWordForm.begin(), originalWordForm.end(), lowercaseWord.begin(), ::tolower);
     std::vector<std::string> definitions = getAllTagContents(entryString, DEFINITION_START_TAG, DEFINITION_END_TAG);
+
+    std::vector<std::string> syllables;
+    unsigned int syllableEmphasisPos = 0;
+    parseSyllables(getBetween(entryString, SYLLABLE_START_TAG, SYLLABLE_END_TAG), syllables, syllableEmphasisPos);
+
     //std::string partsOfSpeech = getAllTagContents(entryString, DEFINITION_START_TAG, DEFINITION_END_TAG);
-    DictionaryEntry *entry = new DictionaryEntry(word);
+    DictionaryEntry *entry = new DictionaryEntry(lowercaseWord);
     entry->addDefinitions(definitions);
+    entry->addPartsOfSpeech(speechParts);
+    entry->addSyllables(syllables);
+    entry->setSyllableEmphasis(syllableEmphasisPos);
+    if (originalWordForm.compare(lowercaseWord) != 0) {
+        entry->addForm(originalWordForm);
+    }
     _gDictionary.insertDictionaryEntry(entry);
 }
 
@@ -194,6 +241,7 @@ void analyzeDictionary(std::string dictionaryFile)
     bool foundNewWord = false;
     bool parsingWord = false;
     bool speechParts[NUM_PARTS_OF_SPEECH] = {false};
+    std::vector<PartsOfSpeechEnums_t> speechPartsVector;
     while (std::getline(infile, line))
     {
         std::istringstream iss(line);
@@ -204,9 +252,10 @@ void analyzeDictionary(std::string dictionaryFile)
         if (foundNewWord) {
             /* Process the previously gathered word before
                moving onto the next one */
-            addDictionaryEntry(wordInfo);
+            addDictionaryEntry(wordInfo, speechPartsVector);
             writeWordToFile(speechParts, wordInfo);
             wordInfo.clear();
+            speechPartsVector.clear();
             memset(speechParts, false, sizeof(speechParts));
             speechParts[NONE] = true;
             foundNewWord = false;
@@ -214,13 +263,16 @@ void analyzeDictionary(std::string dictionaryFile)
         }
         if (parsingWord) {
             if (line.find("<tt>") != std::string::npos) {
-                findPartOfSpeech(line, speechParts);
+                findPartOfSpeech(line, speechParts, speechPartsVector);
             }
             wordInfo.push_back(line);
         }
     }
     if (!wordInfo.empty()) {
+        addDictionaryEntry(wordInfo, speechPartsVector);
         writeWordToFile(speechParts, wordInfo);
+        wordInfo.clear();
+        speechPartsVector.clear();
     }
     closePartOfSpeechFiles();
 }
@@ -231,7 +283,7 @@ std::string printMenu(MenuLoader &menuLoader, std::string menuID)
     if (menuLoader.displayMenu(menuID)) {
         std::cout << "Error loading menu:" << menuID << std::endl;
     }
-    std::cin >> choice;
+    std::getline(std::cin, choice);
     std::cout << std::endl;
     return choice;
 }
@@ -239,6 +291,7 @@ std::string printMenu(MenuLoader &menuLoader, std::string menuID)
 int handleMenuInput(std::string menuInput)
 {
     if (menuInput == "1") { return LOOKUP; }
+    if (menuInput == "2") { return SENTENCE_ANALYZE; }
     else if (menuInput == "q") { return QUIT; }
     return INVALID;
 }
@@ -248,6 +301,7 @@ void beADictionaryApp()
     MenuLoader menuLoader;
     menuLoader.createMenu("main", "menus/main.menu");
     menuLoader.createMenu("lookup", "menus/lookup.menu");
+    menuLoader.createMenu("sentence", "menus/sentence.menu");
     std::string menuInput;
     int menuChoice = INVALID;
     do {
@@ -261,6 +315,34 @@ void beADictionaryApp()
                 std::cout << "Dictionary Entry for: " << lookupWord << std::endl;
                 std::cout << "--------------------------------------: " <<std::endl;
                 std::cout << wordInfo << std::endl;
+                break;
+            }
+        case SENTENCE_ANALYZE:
+            {
+                std::string sentence = printMenu(menuLoader, "sentence");
+                std::stringstream ss(sentence);
+                std::istream_iterator<std::string> begin(ss);
+                std::istream_iterator<std::string> end;
+                std::vector<std::string> vstrings(begin, end);
+                for (unsigned int i = 0; i < vstrings.size(); ++i) {
+                    std::string copy = vstrings[i];
+                    std::transform(vstrings[i].begin(), vstrings[i].end(), copy.begin(), ::tolower);
+                    DictionaryEntry* entryPtr = _gDictionary.getDictionaryEntry(copy);
+                    std::cout << vstrings[i] << ": ";
+                    if (!entryPtr) {
+                        std::cout << "NOT FOUND" << std::endl;
+                    } else {
+                        std::vector<PartsOfSpeechEnums_t> posVec = entryPtr->getPartsOfSpeech();
+                        std::string partsOfSpeech = "<N/A>";
+                        if (!posVec.empty()) {
+                            partsOfSpeech = "";
+                            for (unsigned int i = 0; i < posVec.size(); ++i) {
+                                partsOfSpeech += PartsOfSpeechStrings[posVec[i]] + std::string(" ");
+                            }
+                        }
+                        std::cout << partsOfSpeech << std::endl;
+                    }
+                }
                 break;
             }
         case QUIT:
