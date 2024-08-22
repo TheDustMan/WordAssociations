@@ -3,7 +3,7 @@ CXXFLAGS=-g -Wall
 
 FILES = words.cpp WordNode.cpp
 OBJECTS = words.o WordNode.o
-EXE = words.exe
+EXE = words
 
 all: compile-all link-all
 
