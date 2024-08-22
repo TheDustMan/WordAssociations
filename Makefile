@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-g -Wall
+CXXFLAGS=-std=c++17 -g -Wall
 
 FILES = words.cpp WordNode.cpp
 OBJECTS = words.o WordNode.o
