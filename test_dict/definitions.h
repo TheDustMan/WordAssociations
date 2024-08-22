@@ -1,11 +1,10 @@
 const int POS_FILES = 13;
 const int POS_SEARCH_STRINGS = 20;
-const char* NEW_WORD_TAG = "<h1>";
-const char* POS_TAG = "<tt>";
+const char *NEW_WORD_TAG = "<h1>";
+const char *POS_TAG = "<tt>";
 const int LAST_UNIQUE_POS = 12;
 
-const char *pos_search_strings[POS_SEARCH_STRINGS] =
-  {
+const char *pos_search_strings[POS_SEARCH_STRINGS] = {
     "",
     "<tt>n.</tt>",
     "<tt>a.</tt>",
@@ -26,10 +25,9 @@ const char *pos_search_strings[POS_SEARCH_STRINGS] =
     "<tt>prep. or adv.</tt>",
     "<tt>adv. & prep.</tt>",
     "<tt>prep. & adv.</tt>",
-  };
+};
 
-const char *pos_files[POS_FILES] =
-  {
+const char *pos_files[POS_FILES] = {
     "none.txt",
     "nouns.txt",
     "adjectives.txt",
@@ -43,12 +41,11 @@ const char *pos_files[POS_FILES] =
     "verbs_transitive.txt",
     "verbs_intransitive.txt",
     "preterites.txt",
-  };
+};
 
 std::fstream file_streams[POS_FILES];
 
-const char *identifiers_pos_file_map[POS_SEARCH_STRINGS] =
-  {
+const char *identifiers_pos_file_map[POS_SEARCH_STRINGS] = {
     "none.txt",
     "nouns.txt",
     "adjectives.txt",
@@ -68,35 +65,32 @@ const char *identifiers_pos_file_map[POS_SEARCH_STRINGS] =
     "none.txt",
     "none.txt",
     "none.txt",
-    "none.txt"
-  };
+    "none.txt"};
 
-enum POS_IDENTIFIERS_MAP
-  {
-    NONE,
-    NOUN,
-    ADJECTIVE,
-    ADVERB,
-    PRONOUN,
-    INTERJECTION,
-    CONJUNCTION,
-    PREPOSITION,
-    VERB,
-    VERB_PAST_PARTICIPLE,
-    VERB_TRANSITIVE,
-    VERB_INTRANSITIVE,
-    VERB_PRETERITE, // LAST_UNIQUE_POS == 12
-    VERB_TRANSITIVE_SPACE,
-    VERB_INTRANSITIVE_SPACE,
-    NOUN_PLURAL,
-    ADVERB_ADJECTIVE,
-    PREPOSITION_ADVERB_OR,
-    ADVERB_PREPOSITION,
-    PREPOSITION_ADVERB_AMP,
-  };
+enum POS_IDENTIFIERS_MAP {
+  NONE,
+  NOUN,
+  ADJECTIVE,
+  ADVERB,
+  PRONOUN,
+  INTERJECTION,
+  CONJUNCTION,
+  PREPOSITION,
+  VERB,
+  VERB_PAST_PARTICIPLE,
+  VERB_TRANSITIVE,
+  VERB_INTRANSITIVE,
+  VERB_PRETERITE, // LAST_UNIQUE_POS == 12
+  VERB_TRANSITIVE_SPACE,
+  VERB_INTRANSITIVE_SPACE,
+  NOUN_PLURAL,
+  ADVERB_ADJECTIVE,
+  PREPOSITION_ADVERB_OR,
+  ADVERB_PREPOSITION,
+  PREPOSITION_ADVERB_AMP,
+};
 
-const int pos_masks[POS_SEARCH_STRINGS] =
-  {
+const int pos_masks[POS_SEARCH_STRINGS] = {
     /*0 NONE=*/0x0,
     /*1 NOUN=*/0x1,
     /*2 ADJECTIVE=*/0x2,
@@ -116,12 +110,6 @@ const int pos_masks[POS_SEARCH_STRINGS] =
     /*16 ADVERB_ADJECTIVE=*/0x4 | 0x2,
     /*17 PREPOSITION_ADVERB_OR=*/0x40 | 0x4,
     /*18 ADVERB_PREPOSITION=*/0x4 | 0x40,
-    /*19 PREPOSITION_ADVERB_AMP=*/0x40 | 0x4      
-  };
+    /*19 PREPOSITION_ADVERB_AMP=*/0x40 | 0x4};
 
-
-enum CURRENT_ACTION 
-  {
-    NEW_WORD,
-    PARSING_WORD
-  };
+enum CURRENT_ACTION { NEW_WORD, PARSING_WORD };
